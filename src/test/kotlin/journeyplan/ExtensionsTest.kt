@@ -8,126 +8,126 @@ import kotlin.test.assertTrue
 
 class ExtensionsTest {
 
-  /** Uncomment the code in this file if you do the extensions **/
+    /** Uncomment the code in this file if you do the extensions **/
 
-  val piccadillyLine = Line("Piccadilly")
-  val victoriaLine = Line("Victoria")
-  val districtLine = Line("District")
+    val piccadillyLine = Line("Piccadilly")
+    val victoriaLine = Line("Victoria")
+    val districtLine = Line("District")
 
-  val southKensington = Station("South Kensington")
-  val knightsbridge = Station("Knightsbridge")
-  val hydeParkCorner = Station("Hyde Park Corner")
-  val greenPark = Station("Green Park")
-  val oxfordCircus = Station("Oxford Circus")
-  val victoria = Station("Victoria")
-  val sloaneSquare = Station("Sloane Square")
+    val southKensington = Station("South Kensington")
+    val knightsbridge = Station("Knightsbridge")
+    val hydeParkCorner = Station("Hyde Park Corner")
+    val greenPark = Station("Green Park")
+    val oxfordCircus = Station("Oxford Circus")
+    val victoria = Station("Victoria")
+    val sloaneSquare = Station("Sloane Square")
 
-  fun londonUnderground(): SubwayMap = SubwayMap(
-      listOf(
-          Segment(southKensington, knightsbridge, piccadillyLine, 3),
-          Segment(knightsbridge, hydeParkCorner, piccadillyLine, 4),
-          Segment(hydeParkCorner, greenPark, piccadillyLine, 2),
-          Segment(greenPark, oxfordCircus, victoriaLine, 1),
-          Segment(greenPark, victoria, victoriaLine, 1),
-          Segment(victoria, greenPark, victoriaLine, 1),
-          Segment(victoria, sloaneSquare, districtLine, 6),
-          Segment(sloaneSquare, southKensington, districtLine, 3),
-          Segment(southKensington, sloaneSquare, districtLine, 6),
-          Segment(sloaneSquare, victoria, districtLine, 6)
-      )
-  )
+    fun londonUnderground(): SubwayMap = SubwayMap(
+        listOf(
+            Segment(southKensington, knightsbridge, piccadillyLine, 3),
+            Segment(knightsbridge, hydeParkCorner, piccadillyLine, 4),
+            Segment(hydeParkCorner, greenPark, piccadillyLine, 2),
+            Segment(greenPark, oxfordCircus, victoriaLine, 1),
+            Segment(greenPark, victoria, victoriaLine, 1),
+            Segment(victoria, greenPark, victoriaLine, 1),
+            Segment(victoria, sloaneSquare, districtLine, 6),
+            Segment(sloaneSquare, southKensington, districtLine, 3),
+            Segment(southKensington, sloaneSquare, districtLine, 6),
+            Segment(sloaneSquare, victoria, districtLine, 6)
+        )
+    )
 
-  val map = londonUnderground()
+    val map = londonUnderground()
 
-  @Test
-  fun `can find multiple routes between stations`() {
-    val routes = map.routesFrom(southKensington, victoria)
-    assertEquals(2, routes.size)
+    @Test
+    fun `can find multiple routes between stations`() {
+        val routes = map.routesFrom(southKensington, victoria)
+        assertEquals(2, routes.size)
 
-    assertTrue(routes[0].segments.all { s -> s.line in setOf(piccadillyLine, victoriaLine) })
-    assertTrue(routes[1].segments.all { s -> s.line == districtLine })
-  }
+        assertTrue(routes[0].segments.all { s -> s.line in setOf(piccadillyLine, victoriaLine) })
+        assertTrue(routes[1].segments.all { s -> s.line == districtLine })
+    }
 
-  @Test
-  fun `can optimise for number of changes`() {
+    @Test
+    fun `can optimise for number of changes`() {
 
-    val routes = map.routesFrom(southKensington, victoria, optimisingFor = Route::numChanges)
-    assertEquals(2, routes.size)
+        val routes = map.routesFrom(southKensington, victoria, optimisingFor = Route::numChanges)
+        assertEquals(2, routes.size)
 
-    assertEquals(0, routes[0].numChanges())
-    assertEquals(1, routes[1].numChanges())
-  }
+        assertEquals(0, routes[0].numChanges())
+        assertEquals(1, routes[1].numChanges())
+    }
 
-  @Test
-  fun `can optimise for duration`() {
+    @Test
+    fun `can optimise for duration`() {
 
-    val routes = map.routesFrom(southKensington, victoria, optimisingFor = Route::duration)
-    assertEquals(2, routes.size)
+        val routes = map.routesFrom(southKensington, victoria, optimisingFor = Route::duration)
+        assertEquals(2, routes.size)
 
-    assertEquals(10, routes[0].duration())
-    assertEquals(12, routes[1].duration())
-  }
+        assertEquals(10, routes[0].duration())
+        assertEquals(12, routes[1].duration())
+    }
 
-  @Test
-  fun `does not offer routes with suspended lines`() {
+    @Test
+    fun `does not offer routes with suspended lines`() {
 
-    var routes = map.routesFrom(southKensington, victoria)
+        var routes = map.routesFrom(southKensington, victoria)
 
-    assertEquals(2, routes.size)
-    assertTrue(routes[0].segments.all { s -> s.line in setOf(piccadillyLine, victoriaLine) })
-    assertTrue(routes[1].segments.all { s -> s.line == districtLine })
+        assertEquals(2, routes.size)
+        assertTrue(routes[0].segments.all { s -> s.line in setOf(piccadillyLine, victoriaLine) })
+        assertTrue(routes[1].segments.all { s -> s.line == districtLine })
 
-    districtLine.suspend()
+        districtLine.suspend()
 
-    routes = map.routesFrom(southKensington, victoria)
+        routes = map.routesFrom(southKensington, victoria)
 
-    assertEquals(1, routes.size)
-    assertTrue(routes[0].segments.none { s -> s.line == districtLine })
+        assertEquals(1, routes.size)
+        assertTrue(routes[0].segments.none { s -> s.line == districtLine })
 
-    districtLine.resume()
+        districtLine.resume()
 
-    routes = map.routesFrom(southKensington, victoria)
+        routes = map.routesFrom(southKensington, victoria)
 
-    assertEquals(2, routes.size)
-    assertTrue(routes[0].segments.all { s -> s.line in setOf(piccadillyLine, victoriaLine) })
-    assertTrue(routes[1].segments.all { s -> s.line == districtLine })
-  }
+        assertEquals(2, routes.size)
+        assertTrue(routes[0].segments.all { s -> s.line in setOf(piccadillyLine, victoriaLine) })
+        assertTrue(routes[1].segments.all { s -> s.line == districtLine })
+    }
 
-  @Test
-  fun `avoids interchange at closed stations`() {
+    @Test
+    fun `avoids interchange at closed stations`() {
 
-    var routes = map.routesFrom(southKensington, oxfordCircus)
-    assertEquals(2, routes.size)
-    victoria.close()
+        var routes = map.routesFrom(southKensington, oxfordCircus)
+        assertEquals(2, routes.size)
+        victoria.close()
 
-    routes = map.routesFrom(southKensington, oxfordCircus)
+        routes = map.routesFrom(southKensington, oxfordCircus)
 
-    assertEquals(1, routes.size)
-    assertDoesNotGoVia(victoria, routes[0])
-  }
+        assertEquals(1, routes.size)
+        assertDoesNotGoVia(victoria, routes[0])
+    }
 
-  @Test
-  fun `does not avoid closed stations if interchange not required`() {
+    @Test
+    fun `does not avoid closed stations if interchange not required`() {
 
-    var routes = map.routesFrom(southKensington, oxfordCircus)
-    assertEquals(2, routes.size)
+        var routes = map.routesFrom(southKensington, oxfordCircus)
+        assertEquals(2, routes.size)
 
-    sloaneSquare.close()
+        sloaneSquare.close()
 
-    routes = map.routesFrom(southKensington, oxfordCircus)
-    assertEquals(2, routes.size)
-    println(routes)
+        routes = map.routesFrom(southKensington, oxfordCircus)
+        assertEquals(2, routes.size)
+        println(routes)
 
-    assertGoesVia(sloaneSquare, routes[1])
-  }
+        assertGoesVia(sloaneSquare, routes[1])
+    }
 
-  private fun assertGoesVia(station: Station, route: Route) {
-    assertNotNull(findIn(route, station))
-  }
+    private fun assertGoesVia(station: Station, route: Route) {
+        assertNotNull(findIn(route, station))
+    }
 
-  private fun assertDoesNotGoVia(station: Station, route: Route) {
-    assertNull(findIn(route, station))
-  }
+    private fun assertDoesNotGoVia(station: Station, route: Route) {
+        assertNull(findIn(route, station))
+    }
 
-  private fun findIn(route: Route, station: Station) = route.segments.find { s -> s.station2 == station }
+    private fun findIn(route: Route, station: Station) = route.segments.find { s -> s.station2 == station }
 }
